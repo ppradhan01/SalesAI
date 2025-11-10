@@ -1,0 +1,21 @@
+We'll go through the end-to-end process of developing an Enterprise project.
+
+Application Architecture: 
+frontend is react and backend is python fastapi. 
+frontend shows a catalog of AI agents.
+The catalog should be organized by 'sales stage' - targeting, origination, progression, and growth.
+these agents are essentially json files representing n8n workflows as code.
+A chat interface on the frontend allows calling webhooks that can trigger agents in n8n, and relay output back to the chat.
+A user session should have persistent state. 
+
+
+Deployment architecture: 
+The system is to be deployed on AWS on a secure VPC. Provide step-by-step instructions to set this up in AWS. A public URL should be exposed for users to access the application over the internet. 
+
+CI/CD:
+The local development environment is VSCode. Provide step by step instructions to setup the project and associated dependencies.
+The system should have a git repo. 
+Provide step by step instructions to setup the repo.
+After local testing, when changes are committed to the repo, it should be deployed on AWS.
+
+Break this down step-by-step, with incremental testing / validation of each step along the way.

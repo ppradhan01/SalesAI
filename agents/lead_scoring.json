@@ -1,0 +1,8 @@
+{
+  "id": "lead_scoring",
+  "name": "Lead Scoring",
+  "stage": "targeting",
+  "description": "Scores leads using firmographic + intent data.",
+  "webhook_path": "/webhook/lead-scoring",
+  "inputs": { "email": "string", "company": "string" }
+}

@@ -1,0 +1,19 @@
+# node
+frontend/node_modules/
+frontend/dist/
+
+# python
+backend/__pycache__/
+*.pyc
+
+# env
+.env
+.env.*
+!.env.example
+
+# docker
+*.log
+
+# OS
+.DS_Store
+EOF

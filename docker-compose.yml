@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: app
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  n8n:
+    image: n8nio/n8n:latest
+    environment:
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_HOST: n8n
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+    volumes:
+      - n8n_data:/home/node/.n8n        # persist n8n account/workflows
+    ports:
+      - "5678:5678"
+    depends_on:
+      - postgres
+      - redis
+
+  backend:
+    build: ./backend
+    environment:
+      N8N_BASE_URL: http://n8n:5678
+      CALLBACK_SECRET: dev-secret
+      REDIS_URL: redis://redis:6379/0
+      AGENTS_DIR: /repo/agents
+      BACKEND_INTERNAL_BASE: http://backend:8000  # so n8n can call back
+    volumes:
+      - ./backend:/app
+      - ./agents:/repo/agents
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+      - n8n
+
+  frontend:
+    working_dir: /app
+    image: node:20
+    command: bash -lc "npm i && npm run dev -- --host"
+    environment:
+      VITE_API_BASE: http://localhost:8000
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  n8n_data:
