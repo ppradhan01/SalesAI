@@ -22,6 +22,8 @@ services:
       N8N_HOST: n8n
       N8N_PORT: 5678
       N8N_PROTOCOL: http
+      N8N_SECURE_API_KEY: true
+      N8N_API_KEY: salesai-dev-key
     volumes:
       - n8n_data:/home/node/.n8n        # persist n8n account/workflows
     ports:

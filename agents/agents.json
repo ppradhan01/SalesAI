@@ -1,0 +1,59 @@
+[
+  {
+    "id": "orchestrator",
+    "name": "Master Orchestrator",
+    "description": "Interactively guides you to the right agent based on your interaction.",
+    "stage": "Guided",
+    "webhook_path": "/webhook/orchestrator"
+  },
+
+  {
+    "id": "buyer",
+    "name": "Buyer Intelligence",
+    "stage": "Targeting",
+    "description": "Provides personality insights for individual buyers or buyer committees.",
+    "webhook_path": "/webhook/lead-scoring"
+  },
+  {
+    "id": "deepresearch",
+    "name": "Deep Research",
+    "description": "Deep Research Agent (external).",
+    "stage": "Targeting",
+    "webhook_path": "/webhook/lead-scoring"
+  },
+  {
+    "id": "nba",
+    "name": "Next Best Action",
+    "description": "Select optimal archetype and growth play.",
+    "stage": "Origination",
+    "webhook_path": "/webhook/conversation-starter"
+  },
+  {
+    "id": "valuepools",
+    "name": "Value Pools",
+    "description": "Craft Value Proposition based on Archetype.",
+    "stage": "Origination",
+    "webhook_path": "/webhook/conversation-starter"
+  },
+  {
+    "id": "day0",
+    "name": "Day Zero business case",
+    "description": "Create day-zero business case based on Archetype.",
+    "stage": "Origination",
+    "webhook_path": "/webhook/conversation-starter"
+  },
+  {
+    "id": "solutioning",
+    "name": "Solutioning",
+    "description": "Solutioning based on Archetype.",
+    "stage": "Progression",
+    "webhook_path": "/webhook/pipeline-prioritizer"
+  },
+  {
+    "id": "growth-1",
+    "name": "Cross/Up-Sell Recommender",
+    "description": "Find the most relevant cross-sell or upsell opportunities from existing clients.",
+    "stage": "Growth",
+    "webhook_path": "/webhook/cross-sell"
+  }
+]

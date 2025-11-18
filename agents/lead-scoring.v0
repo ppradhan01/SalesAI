@@ -1,5 +1,5 @@
 {
-  "id": "lead_scoring",
+  "id": "lead-scoring",
   "name": "Lead Scoring",
   "stage": "targeting",
   "description": "Scores leads using firmographic + intent data.",

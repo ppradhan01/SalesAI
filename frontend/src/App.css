@@ -1,42 +1,239 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* ========== ROOT VARIABLES ========== */
+:root {
+  --ibm-blue: #264bc4; /* softer blue */
+  --text-color: #1f1f1f;
+  --font-main: "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --panel-bg: #ffffff;
+  --panel-border: #e0e0e0;
+  --panel-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* ========== GLOBAL ========== */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  font-family: var(--font-main);
+  color: var(--text-color);
+  background: #f9f9f9;
+  overflow-x: hidden;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+/* ========== HEADER (Banner) ========== */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: #fff;
+  color: var(--ibm-blue);
+  padding: 10px 2vw;                 /* fluid padding */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-sizing: border-box;
+}
+
+.header img {
+  width: 9%;                         /* smaller logo */
+  max-width: 120px;
+  height: auto;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.1rem;                 /* smaller title */
+  font-weight: 600;
+  color: var(--ibm-blue);
+}
+
+/* ========== WELCOME ========== */
+.welcome {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 20px 2vw;                 /* add left/right padding so it’s not glued to the edge */
+  margin: 10px 0 0;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: #333;
+}
+
+/* ========== MAIN LAYOUT (Full-width, 2 panes) ========== */
+/* Use grid for predictable, equal columns that stretch full width */
+.main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;    /* equal widths */
+  gap: 2vw;                          /* fluid gap */
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 2vw 2vw;                /* edge padding + bottom breathing room */
+}
+
+/* ========== PANELS ========== */
+.catalog,
+.chat {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  box-shadow: var(--panel-shadow);
+  padding: 16px;
+  box-sizing: border-box;
+
+  /* Make each panel internally flexible */
+  display: flex;
+  flex-direction: column;
+  min-height: 65vh;                  /* tall enough but not hard-coded to viewport */
+}
+
+/* Headings */
+.catalog h2,
+.chat h2 {
+  font-size: 1.15rem;
+  color: var(--ibm-blue);
+  margin: 0 0 10px;
+}
+
+.catalog h3 {
+  margin: 18px 0 8px;
+  color: var(--ibm-blue);
+}
+
+/* ========== Agent list ========== */
+/* ===== Agent Entry Styling ===== */
+
+.agent-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.agent-icon {
+  font-size: 1.2rem;
+  color: var(--ibm-blue);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.agent-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.agent-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-color);
+}
+
+.agent-desc {
+  font-size: 0.9rem;
+  font-style: italic;
+  color: #555;
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+.agent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.agent-button {
+  background: #fff;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.agent-button:hover {
+  border-color: var(--ibm-blue);
+  box-shadow: 0 0 4px rgba(38, 75, 196, 0.2);
+}
+
+.agent-button.selected {
+  background: #e8ecfa;
+  border-color: var(--ibm-blue);
+}
+
+/* ========== Chat area ========== */
+.chat-messages {
+  flex: 1;                           /* fills remaining space in panel */
+  overflow-y: auto;
+  margin: 8px 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chat-bubble {
+  max-width: 80%;
+  padding: 8px 12px;
+  border-radius: 10px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.chat-bubble.user {
+  align-self: flex-end;
+  background: var(--ibm-blue);
+  color: #fff;
+}
+
+.chat-bubble.agent {
+  align-self: flex-start;
+  background: #e0e0e0;
+  color: #000;
+}
+
+.chat-input {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-family: var(--font-main);
+}
+
+.chat-input button {
+  padding: 8px 14px;
+  background: var(--ibm-blue);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-family: var(--font-main);
+}
+
+.chat-input button:hover {
+  background: #1c3b9d;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 1100px) {
+  .header img {
+    width: 16%;
+    max-width: 90px;
   }
-  to {
-    transform: rotate(360deg);
+  .header h1 {
+    font-size: 1rem;
   }
-}
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+  .main {
+    grid-template-columns: 1fr;      /* stack panes on small screens */
+    gap: 16px;
+    padding: 0 3vw 3vw;
   }
-}
 
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+  .catalog,
+  .chat {
+    min-height: auto;
+  }
 }

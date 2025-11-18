@@ -1,146 +1,144 @@
-import { useEffect, useRef, useState } from "react";
-
-const STAGES = ["targeting", "origination", "progression", "growth"];
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000";
+import React, { useEffect, useState } from "react";
+import "./App.css";
 
 export default function App() {
   const [agents, setAgents] = useState({});
-  const [selected, setSelected] = useState(null);
+  const [message, setMessage] = useState("");
   const [chat, setChat] = useState([]);
-  const [input, setInput] = useState("");
+  const [selectedAgent, setSelectedAgent] = useState(null);
   const [conversationId, setConversationId] = useState(null);
-  const wsRef = useRef(null);
+  const [socket, setSocket] = useState(null);
 
-  // Fetch agents for catalog
   useEffect(() => {
-    fetch(`${API_BASE}/agents`).then((r) => r.json()).then(setAgents);
+    fetch("http://localhost:8000/agents")
+      .then((r) => r.json())
+      .then(setAgents);
   }, []);
 
-  // Start a chat session for a chosen agent
-  async function startRun(agent) {
-    const r = await fetch(`${API_BASE}/chat/start`, {
+  const startChat = async (agentId, input) => {
+    const res = await fetch("http://localhost:8000/chat/start", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ agent_id: agent.id, inputs: {} }),
+      body: JSON.stringify({ agent_id: agentId, inputs: input }),
     });
-    const { conversation_id } = await r.json();
-
-    // Open websocket for this conversation
-    const wsUrl = `${API_BASE.replace("http", "ws")}/ws/${conversation_id}`;
-    const ws = new WebSocket(wsUrl);
-    ws.onmessage = (ev) => {
-      const msg = JSON.parse(ev.data);
-      setChat((prev) => [...prev, msg]);
+    const data = await res.json();
+    const convo = data.conversation_id;
+    setConversationId(convo);
+    const ws = new WebSocket(`ws://localhost:8000/ws/${convo}`);
+    ws.onmessage = (event) => {
+      const msg = JSON.parse(event.data);
+      if (msg.type === "n8n_result") {
+        setChat((prev) => [...prev, { sender: "agent", text: msg.data.result }]);
+      }
     };
-    wsRef.current = ws;
-    setConversationId(conversation_id);
-    setSelected(agent);
-    setChat([]); // reset chat when switching agents
-  }
+    setSocket(ws);
+  };
 
-  // Send a user message → backend → echo back via WebSocket
-  async function sendMessage() {
-    if (!input || !conversationId) return;
-    setChat((prev) => [...prev, { type: "user", message: input }]);
-
-    await fetch(`${API_BASE}/chat/send`, {
+  const sendMessage = async () => {
+    if (!message || !conversationId) return;
+    setChat((prev) => [...prev, { sender: "user", text: message }]);
+    await fetch("http://localhost:8000/chat/send", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ conversation_id: conversationId, message: input }),
+//      body: JSON.stringify({ conversation_id: conversationId, message }),
+      body: JSON.stringify({ conversation_id: conversationId, message, agent_id: selectedAgent.id}),
     });
-
-    setInput("");
-  }
+    setMessage("");
+  };
 
   return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "1fr 2fr",
-        gap: "1rem",
-        padding: "1rem",
-      }}
-    >
-      {/* Left column — catalog */}
-      <div>
-        <h2>AI Agents by Sales Stage</h2>
-        {STAGES.map((stage) => (
-          <div key={stage}>
-            <h3 style={{ textTransform: "capitalize" }}>{stage}</h3>
-            <ul>
-              {(agents[stage] || []).map((a) => (
-                <li key={a.id} style={{ marginBottom: "0.5rem" }}>
-                  <button onClick={() => startRun(a)}>{a.name}</button>
-                  <div style={{ fontSize: "0.9em" }}>{a.description}</div>
-                </li>
-              ))}
-            </ul>
+    <div>
+      {/* HEADER */}
+      <header className="header">
+        <img src="/ibm-logo.png" alt="IBM Logo" />
+        <h1>Consulting Sales AI</h1>
+      </header>
+
+      {/* WELCOME SECTION */}
+      <section className="welcome">
+        <h2>Welcome!</h2>
+        <p>
+          Meet your agents that will help you 10× your sales performance.
+          You have two ways to use them:
+        </p>
+        <ul>
+          <li>
+            If you know the agent you want and what input it expects, just
+            select it from the catalog.
+          </li>
+          <li>
+            If you'd like an orchestrated experience instead, select the{" "}
+            <strong>master orchestrator agent</strong> and let it guide you to
+            the right agent as you interact with it.
+          </li>
+        </ul>
+      </section>
+
+      {/* MAIN CONTENT */}
+      <main className="main">
+        {/* AGENT CATALOG */}
+	<div className="catalog">
+	  <h2>Agent Catalog</h2>
+	  {Object.keys(agents).map((stage) => (
+	    <div key={stage}>
+	      <h3>{stage}</h3>
+	      <div className="agent-list">
+		{agents[stage].map((agent) => (
+		  <button
+		    key={agent.id}
+		    className={`agent-button ${selectedAgent?.id === agent.id ? "selected" : ""}`}
+		    onClick={() => {
+		      setSelectedAgent(agent);
+		      setChat([]); // clear previous chat
+		      startChat(agent.id, {});
+		    }}
+		  >
+		    <div className="agent-entry">
+		      <span className="agent-icon">🤖</span>
+		      <div className="agent-info">
+			<div className="agent-name">{agent.name}</div>
+			<div className="agent-desc">{agent.description}</div>
+		      </div>
+		    </div>
+		  </button>
+		))}
+	      </div>
+	    </div>
+	  ))}
+	</div>
+
+
+        {/* CHAT PANEL */}
+        <div className="chat">
+          <h2>
+            {selectedAgent
+              ? `Chat with ${selectedAgent.name}`
+              : "Select an agent from the catalog to start your work"}
+          </h2>
+
+          <div className="chat-messages">
+            {chat.map((c, i) => (
+              <div
+                key={i}
+                className={`chat-bubble ${c.sender === "user" ? "user" : "agent"}`}
+              >
+                {c.sender === "agent" ? `Agent: ${c.text}` : c.text}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      {/* Right column — chat UI */}
-      <div>
-        <h2>Chat</h2>
-
-        {/* Chat window */}
-        <div
-          style={{
-            background: "#111",
-            color: "#0f0",
-            padding: "1rem",
-            height: "50vh",
-            overflow: "auto",
-            borderRadius: "8px",
-            marginBottom: "1rem",
-          }}
-        >
-          {chat.map((m, i) => (
-            <div key={i}>
-              {m.type === "user"
-                ? `You: ${m.message}`
-                : `Agent: ${JSON.stringify(m.data || m.message || m)}`}
+          {selectedAgent && (
+            <div className="chat-input">
+              <input
+                placeholder="Type your message..."
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+              />
+              <button onClick={sendMessage}>Send</button>
             </div>
-          ))}
+          )}
         </div>
-
-        {/* Input box */}
-        {selected && (
-          <div style={{ display: "flex", gap: "0.5rem" }}>
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Type a message..."
-              style={{ flex: 1, padding: "0.5rem", borderRadius: "4px" }}
-            />
-            <button onClick={sendMessage} style={{ padding: "0.5rem 1rem" }}>
-              Send
-            </button>
-          </div>
-        )}
-
-        {/* Debug console */}
-        <div
-          style={{
-            background: "#000",
-            color: "#0f0",
-            padding: "1rem",
-            marginTop: "1rem",
-            height: "15vh",
-            overflow: "auto",
-            fontSize: "0.8em",
-          }}
-        >
-          Debug console output...
-        </div>
-
-        {selected && (
-          <div style={{ marginTop: "0.5rem" }}>
-            Running: <b>{selected.name}</b>
-          </div>
-        )}
-      </div>
+      </main>
     </div>
   );
 }
